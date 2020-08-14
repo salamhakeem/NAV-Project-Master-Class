@@ -1,0 +1,297 @@
+OBJECT Page 50001 Seminar Setup
+{
+  OBJECT-PROPERTIES
+  {
+    Date=11/03/19;
+    Time=[ 8:02:54 PM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    SourceTable=Table50001;
+    PageType=Card;
+    OnOpenPage=BEGIN
+                 IF NOT FINDFIRST THEN
+                   INSERT;
+               END;
+
+  }
+  CONTROLS
+  {
+    { 1   ;0   ;Container ;
+                ContainerType=ContentArea }
+
+    { 2   ;1   ;Group     ;
+                Name=General;
+                GroupType=Group }
+
+    { 3   ;2   ;Field     ;
+                SourceExpr="Seminar Nos." }
+
+    { 4   ;2   ;Field     ;
+                SourceExpr="Seminar Registration Nos." }
+
+    { 5   ;2   ;Field     ;
+                SourceExpr="Posted Seminar Reg. Nos." }
+
+    { 16  ;0   ;Container ;
+                ContainerType=FactBoxArea }
+
+    { 17  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=Notes }
+
+    { 18  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=MyNotes }
+
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Page 50002 Seminar List
+{
+  OBJECT-PROPERTIES
+  {
+    Date=11/04/19;
+    Time=[ 8:00:13 PM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    SourceTable=Table50000;
+    PageType=List;
+    CardPageID=Page50000;
+  }
+  CONTROLS
+  {
+    { 1   ;0   ;Container ;
+                ContainerType=ContentArea }
+
+    { 2   ;1   ;Group     ;
+                Name=Group;
+                GroupType=Repeater }
+
+    { 3   ;2   ;Field     ;
+                SourceExpr="No." }
+
+    { 4   ;2   ;Field     ;
+                SourceExpr=Name }
+
+    { 5   ;2   ;Field     ;
+                SourceExpr="Search Name" }
+
+    { 6   ;2   ;Field     ;
+                SourceExpr="Phone No." }
+
+    { 7   ;2   ;Field     ;
+                SourceExpr="Document Sending Profile" }
+
+    { 8   ;2   ;Field     ;
+                SourceExpr=SetStyle }
+
+    { 9   ;2   ;Field     ;
+                SourceExpr=City }
+
+    { 10  ;0   ;Container ;
+                ContainerType=FactBoxArea }
+
+    { 11  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=Notes }
+
+    { 12  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=MyNotes }
+
+    { 13  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=RecordLinks }
+
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Page 60010 Cust.Complaint Form Card
+{
+  OBJECT-PROPERTIES
+  {
+    Date=12/01/19;
+    Time=[ 3:17:11 PM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    SourceTable=Table60010;
+    PageType=Card;
+  }
+  CONTROLS
+  {
+    { 1   ;0   ;Container ;
+                ContainerType=ContentArea }
+
+    { 2   ;1   ;Group     ;
+                Name=General;
+                GroupType=Group }
+
+    { 3   ;2   ;Field     ;
+                Name=Form No;
+                SourceExpr="Complaint No." }
+
+    { 4   ;2   ;Field     ;
+                Name=Description Summary;
+                ToolTipML=ENU=To give the details of complaints about issues products purchased by customers;
+                SourceExpr="Complaint Description";
+                MultiLine=Yes }
+
+    { 19  ;2   ;Field     ;
+                SourceExpr="Date of Complaint Receipt";
+                Enabled=FALSE;
+                Editable=FALSE }
+
+    { 22  ;2   ;Field     ;
+                SourceExpr="User Id" }
+
+    { 13  ;2   ;Field     ;
+                SourceExpr=Remark }
+
+    { 5   ;1   ;Group     ;
+                Name=Customer Details;
+                GroupType=Group }
+
+    { 20  ;2   ;Field     ;
+                SourceExpr="Complainant No." }
+
+    { 21  ;2   ;Field     ;
+                SourceExpr="Complainant Name";
+                Enabled=FALSE;
+                Editable=FALSE }
+
+    { 7   ;2   ;Field     ;
+                SourceExpr="Phone Number";
+                Enabled=FALSE;
+                Editable=FALSE }
+
+    { 8   ;2   ;Field     ;
+                SourceExpr=Address;
+                Enabled=FALSE;
+                Editable=FALSE }
+
+    { 18  ;1   ;Group     ;
+                Name=Complaint Details;
+                GroupType=Group }
+
+    { 9   ;2   ;Field     ;
+                SourceExpr="Product No." }
+
+    { 6   ;2   ;Field     ;
+                SourceExpr="Product Name" }
+
+    { 10  ;2   ;Field     ;
+                SourceExpr=Quantity }
+
+    { 11  ;2   ;Field     ;
+                SourceExpr="Purchase Location" }
+
+    { 12  ;2   ;Field     ;
+                SourceExpr="Purchase of Product Evidence" }
+
+    { 14  ;0   ;Container ;
+                ContainerType=FactBoxArea }
+
+    { 15  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=Notes }
+
+    { 16  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=MyNotes }
+
+    { 17  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=RecordLinks }
+
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Page 60011 Cust.Complaint Form List
+{
+  OBJECT-PROPERTIES
+  {
+    Date=11/24/19;
+    Time=[ 4:43:11 PM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    SourceTable=Table60010;
+    PageType=List;
+    CardPageID=Cust.Complaint Form Card;
+  }
+  CONTROLS
+  {
+    { 1   ;0   ;Container ;
+                ContainerType=ContentArea }
+
+    { 2   ;1   ;Group     ;
+                Name=Group;
+                GroupType=Repeater }
+
+    { 3   ;2   ;Field     ;
+                SourceExpr="Complaint No." }
+
+    { 4   ;2   ;Field     ;
+                SourceExpr="Complainant No." }
+
+    { 5   ;2   ;Field     ;
+                SourceExpr="Complainant Name" }
+
+    { 6   ;2   ;Field     ;
+                SourceExpr="Phone Number" }
+
+    { 7   ;2   ;Field     ;
+                SourceExpr=Address }
+
+    { 8   ;2   ;Field     ;
+                SourceExpr="Product No." }
+
+    { 9   ;0   ;Container ;
+                ContainerType=FactBoxArea }
+
+    { 10  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=Notes }
+
+    { 11  ;1   ;Part      ;
+                PartType=System;
+                SystemPartID=MyNotes }
+
+  }
+  CODE
+  {
+
+    BEGIN
+    END.
+  }
+}
+

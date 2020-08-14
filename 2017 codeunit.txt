@@ -1,0 +1,461 @@
+OBJECT Codeunit 50000 Create Cust From Vends
+{
+  OBJECT-PROPERTIES
+  {
+    Date=02/09/20;
+    Time=[ 1:34:06 PM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            CreateCustFromVendor(VendorRec1);
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      VendorRec1@1001 : Record 23;
+
+    PROCEDURE CreateCustFromVendor@1(VendorRec@1000 : Record 23);
+    VAR
+      CustomerRec@1001 : Record 18;
+    BEGIN
+      WITH VendorRec  DO
+        BEGIN
+          IF NOT CustomerRec.GET("No.") THEN
+            BEGIN
+              CustomerRec.INIT;
+              CustomerRec."No." := VendorRec."No.";
+              CustomerRec.Name := VendorRec.Name;
+              CustomerRec.Address := VendorRec.Address;
+              CustomerRec."Address 2" := VendorRec."Address 2";
+              CustomerRec.Blocked := VendorRec.Blocked::" ";
+              CustomerRec.INSERT;
+              CustomerRec.MODIFY;
+
+              MESSAGE('Customer created for this vendor')
+            END
+          ELSE
+            ERROR('Customer already created');
+        END;
+    END;
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Codeunit 50003 Capitalise Codeunit
+{
+  OBJECT-PROPERTIES
+  {
+    Date=04/20/20;
+    Time=[ 5:25:11 PM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+
+    PROCEDURE CapitalizeName@1(Cust@1000 : Record 18);
+    BEGIN
+      Cust.Name := UPPERCASE(Cust.Name);
+      Cust.MODIFY(TRUE);
+    END;
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Codeunit 50005 B2B Codeunit
+{
+  OBJECT-PROPERTIES
+  {
+    Date=05/16/20;
+    Time=10:02:27 AM;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      txtErrorRegistered@1000 : TextConst 'ENU=Ok: Order previously registered in NAV';
+
+    PROCEDURE GetSalesPrice@3(CustNo@1000 : Code[20];PostingDate@1001 : Date;ItemNo@1002 : Code[20];Quantity@1003 : Decimal;UoM@1004 : Code[20];CampaignCode@1005 : Code[20]) : Decimal;
+    VAR
+      Customer@1006 : Record 18;
+      SalesHeader@1007 : Record 36;
+      SalesLine@1008 : Record 37;
+      Item@1009 : Record 27;
+      Price@1010 : Decimal;
+    BEGIN
+      Price:= 0;
+      IF Customer.GET(CustNo) AND Item.GET(ItemNo) THEN
+        BEGIN
+          //Here we create a sales order
+          //With a special code that will avoid primary key
+          SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+          SalesHeader."No.":= 'B2B';
+          SalesHeader.VALIDATE("Sell-to Customer No.",CustNo);
+          SalesHeader.VALIDATE("Posting Date",PostingDate);
+          SalesHeader.VALIDATE("Document Date",PostingDate);
+          SalesHeader.VALIDATE("Shipment Date",PostingDate);
+          SalesHeader."Campaign No." := CampaignCode;
+          SalesHeader.INSERT(TRUE);
+
+          // Sales Line creation
+          SalesLine."Document Type" := SalesLine."Document Type"::Order;
+          SalesLine."Document No.":= 'B2B';
+          SalesLine."Line No." := 10000;
+          SalesLine.VALIDATE("Sell-to Customer No.",CustNo);
+          SalesLine.Type := SalesLine.Type::Item;
+          SalesLine.VALIDATE("No.",ItemNo);
+          SalesLine.VALIDATE("Unit of Measure",UoM);
+          SalesLine.VALIDATE("Shipment Date",PostingDate);
+          SalesLine.VALIDATE(Quantity,Quantity);
+          SalesLine.INSERT(TRUE);
+          Price := SalesLine."Unit Price";
+
+          // Delete temporary data
+          SalesHeader.GET(SalesHeader."Document Type"::Order);
+          SalesHeader.DELETE(TRUE);
+
+          END;
+          EXIT(Price);
+
+    END;
+
+    PROCEDURE GetSalesDiscount@4(CustNo@1000 : Code[20];PostingDate@1001 : Date;ItemNo@1002 : Code[20];Quantity@1003 : Decimal;UoM@1004 : Code[20];CampaignCode@1005 : Code[20]) : Decimal;
+    VAR
+      Customer@1010 : Record 18;
+      SalesHeader@1009 : Record 36;
+      SalesLine@1008 : Record 37;
+      Item@1007 : Record 27;
+      Discount@1006 : Decimal;
+    BEGIN
+
+      Discount := 0;
+      IF Customer.GET(CustNo) AND Item.GET(ItemNo) THEN
+        BEGIN
+          //Here we create a sales order
+          //With a special code that will avoid primary key
+          SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+          SalesHeader."No.":= 'B2B';
+          SalesHeader.VALIDATE("Sell-to Customer No.",CustNo);
+          SalesHeader.VALIDATE("Posting Date",PostingDate);
+          SalesHeader.VALIDATE("Document Date",PostingDate);
+          SalesHeader.VALIDATE("Shipment Date",PostingDate);
+          SalesHeader."Campaign No." := CampaignCode;
+          SalesHeader.INSERT(TRUE);
+
+          // Sales Line creation
+          SalesLine."Document Type" := SalesLine."Document Type"::Order;
+          SalesLine."Document No.":= 'B2B';
+          SalesLine."Line No." := 10000;
+          SalesLine.VALIDATE("Sell-to Customer No.",CustNo);
+          SalesLine.Type := SalesLine.Type::Item;
+          SalesLine."Line Discount %" := Discount;
+          SalesLine.VALIDATE("No.",ItemNo);
+          SalesLine.VALIDATE("Unit of Measure",UoM);
+          SalesLine.VALIDATE("Shipment Date",PostingDate);
+          SalesLine.VALIDATE(Quantity,Quantity);
+          SalesLine.INSERT(TRUE);
+          //Price := SalesLine."Unit Price";
+
+          // Delete temporary data
+          SalesHeader.GET(SalesHeader."Document Type"::Order);
+          SalesHeader.DELETE(TRUE);
+
+          END;
+          EXIT(Discount);
+
+    END;
+
+    PROCEDURE GetItemInventory@5(ItemNo@1000 : Code[10]) : Decimal;
+    VAR
+      Item@1001 : Record 27;
+      Inventory@1002 : Decimal;
+    BEGIN
+      Inventory:= 0;
+      IF Item.GET(ItemNo) THEN
+      BEGIN
+      //Default location (place it on setup table)
+      Item.SETFILTER("Location Filter",'SEDE');
+      Item.SETFILTER("Date Filter",'%1',TODAY);
+      Item.CALCFIELDS(Inventory);
+      Inventory := Item.Inventory;
+      END;
+      EXIT(Inventory);
+    END;
+
+    PROCEDURE InsertOrderB2B@11(OrderNo@1000 : Code[20];LineNo@1001 : Integer;CustomerNo@1002 : Code[20];OrderDate@1003 : Date;ShipAddressCode@1004 : Code[20];ItemNo@1005 : Code[20];Qty@1006 : Decimal;Note@1007 : Text[250]) : Text;
+    VAR
+      B2BOrder@1008 : Record 50000;
+    BEGIN
+      IF B2BOrder.GET(OrderNo,LineNo) THEN
+        BEGIN
+          IF B2BOrder."Phone No." THEN
+            EXIT(txtErrorRegistered)
+          ELSE
+          BEGIN
+            // Row update
+            B2BOrder."Search Name" := CustomerNo;
+            B2BOrder."Name 2" := OrderDate;
+            B2BOrder.Address := ShipAddressCode;
+            B2BOrder."Address 2" := ItemNo;
+            B2BOrder.City := Qty;
+            B2BOrder.Contact := Note;
+            B2BOrder."Phone No." := FALSE;
+            B2BOrder.MODIFY;
+
+          END
+        END
+        ELSE
+        BEGIN
+          //Insert
+
+          B2BOrder.INIT;
+          B2BOrder."No." := OrderNo;
+          B2BOrder.Name := LineNo;
+          B2BOrder."Search Name" := CustomerNo;
+          B2BOrder."Name 2" := OrderDate;
+          B2BOrder.Address := ShipAddressCode;
+          B2BOrder."Address 2" := ItemNo;
+          B2BOrder.City := Qty;
+          B2BOrder.Contact := Note;
+          B2BOrder."Phone No.":=FALSE;
+          B2BOrder.INSERT;
+        END;
+        EXIT('OK');
+    END;
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Codeunit 50010 OnBeforeOpenSubscriber
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/03/20;
+    Time=[ 8:27:20 AM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+
+    [EventSubscriber(Page,22,OnOpenPageEvent)]
+    LOCAL PROCEDURE OnBeforeOpenPageSubscriber@1(VAR Rec@1000 : Record 18);
+    BEGIN
+      IF NOT CONFIRM('Do you want to check the customer page',FALSE) THEN
+        MESSAGE('The customer page is now opened');
+    END;
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Codeunit 50012 Item Codeunit Page
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/04/20;
+    Time=12:03:50 PM;
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            ItemRec.RESET;
+            ItemRec.SETCURRENTKEY("Inventory Posting Group");
+            ItemRec.SETRANGE("Inventory Posting Group",'FINISHED');
+            ItemRec.SETFILTER("Unit Cost",'>%1',500);
+            IF PAGE.RUNMODAL(PAGE::"Item List",ItemRec) =ACTION::LookupOK THEN
+              MESSAGE('Selected Item is %1, %2',
+            ItemRec."No.", ItemRec.Description);
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      ItemRec@1000 : Record 27;
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Codeunit 50015 Test Customer Sorting
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/03/20;
+    Time=[ 8:36:44 AM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            WITH Customer DO BEGIN
+              SETCURRENTKEY("Sales (LCY)");
+              FINDLAST;
+              MESSAGE("No.");
+            END;
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      Customer@1000 : Record 18;
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Codeunit 50020 Demo Events
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/05/20;
+    Time=[ 6:59:05 PM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      WorkflowEventHandling@1000 : Codeunit 1520;
+      WorkflowManagement@1001 : Codeunit 1501;
+
+    PROCEDURE RunWorkflowOnSendCampaignForApprovalCode@2() : Code[128];
+    BEGIN
+      EXIT(UPPERCASE('RunWorkflowOnSendCampaignForApproval'));
+    END;
+
+    PROCEDURE RunWorkflowOnCancelCampaignForApprovalCode@3() : Code[128];
+    BEGIN
+      EXIT(UPPERCASE('RunWorkflowOnCancelCampaignForApproval'));
+    END;
+
+    [EventSubscriber(Codeunit,1520,OnAddWorkflowEventsToLibrary)]
+    PROCEDURE AddEventToLibrary@4();
+    BEGIN
+      WorkflowEventHandling.AddEventToLibrary(RunWorkflowOnSendCampaignForApprovalCode,DATABASE::Campaign,
+                                              'Approval of a campaign is created.',0,FALSE);
+      WorkflowEventHandling.AddEventToLibrary(RunWorkflowOnCancelCampaignForApprovalCode,DATABASE::Campaign,
+                                              'An approval request for a campaign is cancelled.',0,FALSE);
+    END;
+
+    [EventSubscriber(Codeunit,1535,OnCancelCampaignApprovalRequest)]
+    PROCEDURE RunWorkflowOnCancelCampaignApprovalRequest@1(VAR Campaign@1000 : Record 5071;);
+    BEGIN
+      WorkflowManagement.HandleEvent(RunWorkflowOnCancelCampaignForApprovalCode,Campaign);
+    END;
+
+    [EventSubscriber(Codeunit,1535,OnSendCampaignForApproval)]
+    PROCEDURE RunWorkflowOnSendCampaignForApproval@5(VAR Campaign@1000 : Record 5071);
+    BEGIN
+      WorkflowManagement.HandleEvent(RunWorkflowOnSendCampaignForApprovalCode,Campaign);
+    END;
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Codeunit 50903 Page Trigger Envent
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/03/20;
+    Time=[ 5:22:32 AM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      UserSetup@1000 : Record 91;
+
+    [EventSubscriber(Page,42,OnAfterActionEvent,Release)]
+    LOCAL PROCEDURE OnReleaseSalesOrderAssignUserID@2(VAR Rec@1000 : Record 36);
+    BEGIN
+      IF UserSetup.GET(USERID) THEN BEGIN
+        Rec.VALIDATE("Assigned User ID",USERID);
+        Rec.MODIFY(TRUE);
+        END;
+    END;
+
+    BEGIN
+    END.
+  }
+}
+
+OBJECT Codeunit 50904 Custom Integration Event
+{
+  OBJECT-PROPERTIES
+  {
+    Date=07/07/20;
+    Time=[ 9:43:15 AM];
+    Modified=Yes;
+    Version List=;
+  }
+  PROPERTIES
+  {
+    OnRun=BEGIN
+            OptionNo := STRMENU('Blue,Plaid,Yellow,HotPink,Orange,Unknown',6,'Which of these is not like the others?');
+          END;
+
+  }
+  CODE
+  {
+    VAR
+      OptionNo@1000 : Integer;
+
+    BEGIN
+    END.
+  }
+}
+
